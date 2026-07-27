@@ -22,6 +22,7 @@ async function main() {
   renderGraficoTotalPorPartido(partidos);
   renderGraficoProporcional(partidos);
   renderGraficoLegislatura(partidos);
+  renderGraficoProporcionalContinua(partidos);
   renderListaPartidos(partidos);
 }
 
@@ -142,6 +143,50 @@ function renderGraficoLegislatura(partidos) {
           beginAtZero: true,
           ticks: { precision: 0 },
           grid: { color: COR_LINE },
+        },
+      },
+    },
+  });
+}
+
+function renderGraficoProporcionalContinua(partidos) {
+  const dados = partidos
+    .map((p) => ({ sigla: p.sigla, total: p.membros.filter((m) => m.NumeroLegislatura_2 === 58).length }))
+    .filter((p) => p.total > 0)
+    .sort((a, b) => b.total - a.total);
+
+  const ctx = document.getElementById("chart-proporcional-continua");
+  const total = dados.reduce((soma, p) => soma + p.total, 0);
+
+  new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: dados.map((p) => p.sigla),
+      datasets: [
+        {
+          data: dados.map((p) => p.total),
+          backgroundColor: dados.map((_, i) => PALETA_PARTIDOS[i % PALETA_PARTIDOS.length]),
+          borderColor: "#0d1b2e",
+          borderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "right",
+          labels: { boxWidth: 12, padding: 12 },
+        },
+        tooltip: {
+          callbacks: {
+            label: (item) => {
+              const valor = item.raw;
+              const pct = ((valor / total) * 100).toFixed(1);
+              return `${item.label}: ${valor} (${pct}%)`;
+            },
+          },
         },
       },
     },
