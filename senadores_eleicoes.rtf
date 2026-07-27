@@ -1,0 +1,134 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 # Projeto: Site "Composi\'e7\'e3o do Senado Federal" \'97 Data Journalism Style\
+\
+## Contexto\
+Tenho um arquivo `parlamentares_senado.json` com dados de 81 parlamentares\
+em exerc\'edcio no Senado Federal, extra\'eddos e tratados a partir da API de\
+dados abertos do Senado Federal. Quero construir um site est\'e1tico de\
+visualiza\'e7\'e3o de dados, no estilo data journalism, hospedado no GitHub\
+Pages a partir do meu reposit\'f3rio.\
+\
+---\
+\
+## Estrutura dos dados (parlamentares_senado.json)\
+\
+Lista de objetos (um por parlamentar), com os campos:\
+\
+- `CodigoParlamentar` (int) \'97 ID \'fanico do parlamentar\
+- `NomeParlamentar` (string) \'97 nome de exerc\'edcio\
+- `NomeCompletoParlamentar` (string)\
+- `SexoParlamentar` (string)\
+- `FormaTratamento` (string) \'97 "Senador" / "Senadora"\
+- `UrlFotoParlamentar` (string) \'97 URL da foto oficial\
+- `UrlPaginaParlamentar` (string) \'97 URL do perfil oficial\
+- `EmailParlamentar` (string)\
+- `SiglaPartidoParlamentar` (string) \'97 sigla do partido\
+- `UfParlamentar` (string) \'97 estado que representa\
+- `DescricaoParticipacao` (string) \'97 "Titular" ou "1\'ba Suplente"\
+- `NumeroLegislatura_2` (int) \'97 **57 significa que o mandato atual termina\
+  nessa legislatura (at\'e9 2027); 58 significa que o mandato continua at\'e9\
+  2031**\
+- `DataInicio_2` / `DataFim_2` (string, YYYY-MM-DD) \'97 datas da 2\'aa\
+  legislatura do mandato\
+- `EmExercicio` (bool) \'97 **False apenas para 2 casos especiais**: titulares\
+  que est\'e3o temporariamente afastados (licen\'e7a ou ocupa\'e7\'e3o de cargo), mas\
+  cujo mandato formal continua sendo deles\
+- `CodigoParlamentar_Titular` / `NomeParlamentar_Titular` (podem ser nulos)\
+  \'97 preenchidos quando esta linha \'e9 um SUPLENTE que assumiu definitivamente\
+  o mandato: identifica o titular original que ele substituiu\
+- `AssumiuDefinitivamente` (string: "Sim"/"N\'e3o") \'97 se o suplente assumiu em\
+  car\'e1ter definitivo\
+- `TipoSaidaTitular` (string, pode ser nulo) \'97 motivo pelo qual o suplente\
+  assumiu (ex: "Ren\'fancia", "Falecimento") OU, nos 2 casos de `EmExercicio =\
+  False`, o motivo do afastamento do titular (ex: "Licen\'e7a", "Ocupa\'e7\'e3o de\
+  cargo de ministro")\
+- `CodigoParlamentar_Suplente` / `NomeParlamentar_Suplente` (podem ser\
+  nulos) \'97 preenchidos apenas nos 2 casos de `EmExercicio = False`:\
+  identifica o suplente que est\'e1 exercendo o mandato no lugar do titular\
+  afastado\
+\
+---\
+\
+## Texto introdut\'f3rio do site\
+\
+Incluir como bloco de abertura, antes das visualiza\'e7\'f5es:\
+\
+> Em outubro de 2026, dois ter\'e7os das cadeiras do Senado Federal estar\'e3o\
+> em disputa. Garantir o controle da Casa \'e9 prioridade para os dois lados\
+> do espectro pol\'edtico. Os dados abaixo apresentam a composi\'e7\'e3o atual do\
+> Senado \'97 e quais parlamentares seguem no mandato at\'e9 a pr\'f3xima\
+> legislatura, e quais o encerram j\'e1 na atual.\
+\
+Logo abaixo, em destaque menor (nota de rodap\'e9 do texto introdut\'f3rio):\
+\
+> As informa\'e7\'f5es de filia\'e7\'e3o partid\'e1ria foram coletadas em 26/07/2026 e\
+> podem n\'e3o refletir mudan\'e7as posteriores.\
+\
+No rodap\'e9 do site (footer):\
+\
+> Elaborado por Daniel Brito \'b7 Dados: Senado Federal\
+\
+---\
+\
+## O que construir\
+\
+### Se\'e7\'e3o 1 \'97 Vis\'e3o consolidada por partido\
+- Gr\'e1fico com a quantidade total de parlamentares por partido\
+  (`SiglaPartidoParlamentar`), ordenado do maior para o menor.\
+- Gr\'e1fico (barras empilhadas ou agrupadas) mostrando, por partido, quantos\
+  mandatos terminam na legislatura atual (`NumeroLegislatura_2 == 57`) vs.\
+  quantos continuam na pr\'f3xima (`NumeroLegislatura_2 == 58`).\
+\
+### Se\'e7\'e3o 2 \'97 Lista de parlamentares por partido\
+- Para cada partido, listar os parlamentares divididos em dois grupos:\
+  "Mandato termina em 2027" (`NumeroLegislatura_2 == 57`) e "Mandato\
+  continua at\'e9 2031" (`NumeroLegislatura_2 == 58`).\
+- Cada card/item da lista deve mostrar: foto (`UrlFotoParlamentar`), nome\
+  (`NomeParlamentar`) e UF (`UfParlamentar`).\
+\
+### Se\'e7\'e3o 3 \'97 Observa\'e7\'f5es especiais (exibir junto ao card do parlamentar, quando aplic\'e1vel)\
+- Se `AssumiuDefinitivamente == "Sim"`: exibir uma observa\'e7\'e3o indicando\
+  que o parlamentar assumiu definitivamente o mandato, citando\
+  `NomeParlamentar_Titular` (quem ele substituiu) e `TipoSaidaTitular`\
+  (o motivo).\
+- Se `EmExercicio == False`: exibir uma observa\'e7\'e3o indicando que o titular\
+  est\'e1 temporariamente fora de exerc\'edcio (`TipoSaidaTitular` como\
+  motivo), e quem est\'e1 exercendo o mandato em seu lugar\
+  (`NomeParlamentar_Suplente`).\
+\
+---\
+\
+## Estilo visual (refer\'eancia: data-journalism-26.github.io)\
+\
+- Tema escuro: fundo azul-marinho profundo (~#0d1b2e), n\'e3o preto puro.\
+- Cor de destaque: rosa/magenta vibrante (~#ec1e6e), usada em t\'edtulos de\
+  se\'e7\'e3o, bordas de cards, tags e links.\
+- T\'edtulo principal em fonte bold/condensada tipo p\'f4ster (ex: Anton, Bebas\
+  Neue, ou similar), texto branco/off-white com contorno ou drop-shadow na\
+  cor de destaque.\
+- Navega\'e7\'e3o e labels em caixa alta, fonte monoespa\'e7ada, com letter-spacing\
+  generoso (visual "reda\'e7\'e3o/editorial").\
+- Cards de conte\'fado com borda de destaque colorida em apenas um lado\
+  (esquerda ou embaixo), n\'e3o ao redor inteiro \'97 efeito "post-it".\
+- Tags/badges de categoria coloridos (pill shape) acima de cada t\'edtulo,\
+  cores variando por categoria mas sempre sobre fundo escuro.\
+- Fotos circulares (para os parlamentares, no nosso caso) com anel\
+  colorido ao redor.\
+- Linhas divis\'f3rias finas, espa\'e7amento generoso entre se\'e7\'f5es.\
+- Tom editorial/jornal\'edstico \'97 n\'e3o "dashboard corporativo".\
+\
+---\
+\
+## Prefer\'eancias t\'e9cnicas\
+- Site est\'e1tico simples (HTML/CSS/JS, sem necessidade de framework\
+  pesado, a menos que voc\'ea recomende algo mais adequado).\
+- Os dados devem ser carregados a partir do `parlamentares_senado.json`\
+  (vou fornecer o arquivo).\
+- Configurar o projeto com git e me orientar/executar o deploy no GitHub\
+  Pages a partir do meu reposit\'f3rio.}

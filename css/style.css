@@ -1,0 +1,319 @@
+:root {
+  --bg: #0d1b2e;
+  --bg-raised: #12233b;
+  --accent: #ec1e6e;
+  --accent-soft: rgba(236, 30, 110, 0.15);
+  --secondary: #2dd4bf;
+  --secondary-soft: rgba(45, 212, 191, 0.15);
+  --text: #f5f5f2;
+  --text-muted: #9aa5b8;
+  --line: rgba(255, 255, 255, 0.12);
+
+  --font-poster: "Anton", sans-serif;
+  --font-mono: "Space Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+}
+
+/* ---------- Nav ---------- */
+
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+.site-nav a {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.site-nav a:hover {
+  color: var(--accent);
+}
+
+/* ---------- Header ---------- */
+
+.site-header {
+  padding: 4rem 1.5rem 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--line);
+}
+
+.site-title {
+  font-family: var(--font-poster);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  letter-spacing: 0.02em;
+  color: var(--text);
+  text-shadow: 3px 3px 0 var(--accent);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.site-subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  margin: 1rem 0 0;
+}
+
+/* ---------- Intro ---------- */
+
+.intro {
+  max-width: 760px;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+}
+
+.intro-text {
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.intro-footnote {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  border-left: 2px solid var(--secondary);
+  padding-left: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* ---------- Sections ---------- */
+
+.section {
+  max-width: 1080px;
+  margin: 5rem auto;
+  padding: 0 1.5rem;
+}
+
+.section-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-family: var(--font-poster);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  text-transform: uppercase;
+  margin: 0 0 2.5rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1.5rem;
+}
+
+/* ---------- Charts ---------- */
+
+.chart-block {
+  margin-bottom: 3.5rem;
+}
+
+.chart-title {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 1.25rem;
+}
+
+.chart-container {
+  background: var(--bg-raised);
+  border-left: 3px solid var(--accent);
+  padding: 1.5rem;
+  height: 380px;
+}
+
+.chart-container--donut {
+  max-width: 480px;
+  height: 420px;
+  margin: 0 auto;
+}
+
+.chart-container--horizontal {
+  height: 520px;
+}
+
+/* ---------- Party groups ---------- */
+
+.partido-grupo {
+  margin-bottom: 3.5rem;
+}
+
+.partido-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.partido-sigla {
+  font-family: var(--font-poster);
+  font-size: 1.6rem;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.partido-total {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.mandato-subgrupo {
+  margin-bottom: 1.75rem;
+}
+
+.mandato-subgrupo-titulo {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 1rem;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+/* ---------- Cards ---------- */
+
+.card {
+  background: var(--bg-raised);
+  border-left: 3px solid var(--accent);
+  padding: 1.25rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.card--continua {
+  border-left-color: var(--secondary);
+}
+
+.card-photo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--accent);
+  background: var(--bg);
+}
+
+.card--continua .card-photo {
+  border-color: var(--secondary);
+}
+
+.card-body {
+  min-width: 0;
+}
+
+.card-nome {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin: 0 0 0.25rem;
+  color: var(--text);
+}
+
+.card-uf {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.card-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  margin-top: 0.5rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.card--continua .card-badge {
+  background: var(--secondary-soft);
+  color: var(--secondary);
+}
+
+.card-obs {
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--line);
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  text-align: center;
+  padding: 3rem 1.5rem 4rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-top: 1px solid var(--line);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 600px) {
+  .chart-container {
+    height: 300px;
+    padding: 1rem;
+  }
+
+  .chart-container--horizontal {
+    height: 460px;
+  }
+
+  .card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

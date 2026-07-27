@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Composição do Senado Federal</title>
+<meta name="description" content="Visualização de dados sobre a composição atual do Senado Federal, com destaque para mandatos que terminam em 2027 e os que seguem até 2031.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+<script src="js/main.js" defer></script>
+</head>
+<body id="top">
+
+<nav class="site-nav">
+  <a href="#top">Início</a>
+  <a href="#secao-partidos">Composição atual</a>
+  <a href="#secao-lista">Parlamentares por partido</a>
+</nav>
+
+<header class="site-header">
+  <h1 class="site-title">Senado Federal</h1>
+  <p class="site-subtitle">Composição atual e as eleições de 2026</p>
+</header>
+
+<section class="intro">
+  <p class="intro-text">
+    Em outubro de 2026, dois terços das cadeiras do Senado Federal estarão
+    em disputa. Garantir o controle da Casa é prioridade para os dois lados
+    do espectro político. Os dados abaixo apresentam a composição atual do
+    Senado — e quais parlamentares seguem no mandato até a próxima
+    legislatura, e quais o encerram já na atual.
+  </p>
+  <p class="intro-footnote">
+    As informações de filiação partidária foram coletadas em 26/07/2026 e
+    podem não refletir mudanças posteriores.
+  </p>
+  <p class="intro-footnote">
+    Foram considerados os titulares dos mandatos e suplentes que assumiram
+    os mandatos definitivamente.
+  </p>
+</section>
+
+<main>
+
+  <section id="secao-partidos" class="section" aria-labelledby="secao-partidos-titulo">
+    <span class="section-tag">Seção 1</span>
+    <h2 id="secao-partidos-titulo" class="section-title">Composição Atual</h2>
+
+    <div class="chart-block">
+      <h3 class="chart-title">Quantidade de parlamentares por partido</h3>
+      <div class="chart-container chart-container--horizontal">
+        <canvas id="chart-total-partido"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-block">
+      <h3 class="chart-title">Distribuição proporcional por partido</h3>
+      <div class="chart-container chart-container--donut">
+        <canvas id="chart-proporcional-partido"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-block">
+      <h3 class="chart-title">Mandatos por partido: fim em 2027 vs. até 2031</h3>
+      <div class="chart-container">
+        <canvas id="chart-legislatura-partido"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <section id="secao-lista" class="section" aria-labelledby="secao-lista-titulo">
+    <span class="section-tag">Seção 2</span>
+    <h2 id="secao-lista-titulo" class="section-title">Parlamentares por partido</h2>
+    <div id="lista-partidos"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>Elaborado por Daniel Brito &middot; Dados: Senado Federal</p>
+</footer>
+
+</body>
+</html>
