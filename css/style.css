@@ -160,29 +160,107 @@ a {
   height: 380px;
 }
 
-.chart-container--donut {
-  max-width: 480px;
-  height: 420px;
+.chart-container--horizontal {
+  height: 520px;
+}
+
+/* ---------- Hemiciclo ---------- */
+
+.hemiciclo-container {
+  background: var(--bg-raised);
+  border-left: 3px solid var(--accent);
+  padding: 1.5rem;
+  max-width: 640px;
   margin: 0 auto;
 }
 
-.chart-container--horizontal {
-  height: 520px;
+.hemiciclo-container svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.hemiciclo-container circle {
+  transition: opacity 0.15s ease;
+}
+
+.hemiciclo-container circle:hover {
+  opacity: 0.7;
+}
+
+.hemiciclo-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.25rem;
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0 0;
+}
+
+.hemiciclo-legenda-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hemiciclo-legenda-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ---------- Menu de partidos ---------- */
+
+.menu-partidos {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding-bottom: 1.25rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.menu-partido-pill {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+}
+
+.menu-partido-pill:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.menu-partido-pill.active {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 /* ---------- Party groups ---------- */
 
 .partido-grupo {
   margin-bottom: 3.5rem;
+  scroll-margin-top: 5rem;
 }
 
 .partido-header {
   display: flex;
   align-items: baseline;
+  flex-wrap: wrap;
   gap: 0.75rem;
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 0.75rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .partido-sigla {
@@ -195,6 +273,25 @@ a {
 .partido-total {
   font-size: 0.8rem;
   color: var(--text-muted);
+}
+
+.partido-mandatos-resumo {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.partido-mandatos-resumo-item {
+  font-size: 0.8rem;
+  margin: 0.2rem 0 0;
+}
+
+.partido-mandatos-resumo-item--2027 {
+  color: var(--accent);
+}
+
+.partido-mandatos-resumo-item--2031 {
+  color: var(--secondary);
 }
 
 .mandato-subgrupo {
@@ -310,6 +407,10 @@ a {
 
   .chart-container--horizontal {
     height: 460px;
+  }
+
+  .hemiciclo-container {
+    padding: 1rem;
   }
 
   .card {

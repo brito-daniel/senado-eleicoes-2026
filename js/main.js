@@ -9,6 +9,11 @@ const PALETA_PARTIDOS = [
   "#ffa8c5", "#a3e635", "#f472b6", "#38bdf8", "#fbbf24"
 ];
 
+const HEMICICLO_RAIO_MIN = 70;
+const HEMICICLO_LINHA_ESPACO = 40;
+const HEMICICLO_RAIO_TETO = 230;
+const HEMICICLO_ESPACAMENTO = 26;
+
 Chart.defaults.color = COR_TEXT_MUTED;
 Chart.defaults.font.family = "'Space Mono', monospace";
 Chart.defaults.font.size = 11;
@@ -20,10 +25,11 @@ async function main() {
   const partidos = agruparPorPartido(parlamentares);
 
   renderGraficoTotalPorPartido(partidos);
-  renderGraficoProporcional(partidos);
+  renderHemiciclo("hemiciclo-total", partidos);
   renderGraficoLegislatura(partidos);
-  renderGraficoProporcionalContinua(partidos);
-  renderListaPartidos(partidos);
+  renderHemiciclo("hemiciclo-continua", partidos, { apenasContinua: true });
+  const gruposPartido = renderListaPartidos(partidos);
+  renderMenuPartidos(partidos, gruposPartido);
 }
 
 function agruparPorPartido(parlamentares) {
@@ -70,43 +76,108 @@ function renderGraficoTotalPorPartido(partidos) {
   });
 }
 
-function renderGraficoProporcional(partidos) {
-  const ctx = document.getElementById("chart-proporcional-partido");
-  const total = partidos.reduce((soma, p) => soma + p.membros.length, 0);
+function calcularPosicoesAssentos(n, { raioMin, linhaEspaco, raioTeto, espacamento }) {
+  if (n <= 0) return [];
 
-  new Chart(ctx, {
-    type: "doughnut",
-    data: {
-      labels: partidos.map((p) => p.sigla),
-      datasets: [
-        {
-          data: partidos.map((p) => p.membros.length),
-          backgroundColor: partidos.map((_, i) => PALETA_PARTIDOS[i % PALETA_PARTIDOS.length]),
-          borderColor: "#0d1b2e",
-          borderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: "right",
-          labels: { boxWidth: 12, padding: 12 },
-        },
-        tooltip: {
-          callbacks: {
-            label: (item) => {
-              const valor = item.raw;
-              const pct = ((valor / total) * 100).toFixed(1);
-              return `${item.label}: ${valor} (${pct}%)`;
-            },
-          },
-        },
-      },
-    },
+  let numFileiras = 1;
+  let capacidades = [];
+  while (true) {
+    capacidades = [];
+    for (let i = 0; i < numFileiras; i++) {
+      const raio = raioMin + i * linhaEspaco;
+      capacidades.push({ raio, capacidade: Math.max(1, Math.floor((Math.PI * raio) / espacamento) + 1) });
+    }
+    const total = capacidades.reduce((soma, c) => soma + c.capacidade, 0);
+    const raioAtual = raioMin + (numFileiras - 1) * linhaEspaco;
+    if (total >= n || raioAtual >= raioTeto) break;
+    numFileiras++;
+  }
+
+  const totalCapacidade = capacidades.reduce((soma, c) => soma + c.capacidade, 0);
+  const escala = n / totalCapacidade;
+  const porFileira = capacidades.map((c) => Math.max(1, Math.round(c.capacidade * escala)));
+
+  let diferenca = n - porFileira.reduce((soma, v) => soma + v, 0);
+  let idx = porFileira.length - 1;
+  while (diferenca !== 0) {
+    if (diferenca > 0) {
+      porFileira[idx]++;
+      diferenca--;
+    } else if (porFileira[idx] > 1) {
+      porFileira[idx]--;
+      diferenca++;
+    }
+    idx = idx === 0 ? porFileira.length - 1 : idx - 1;
+  }
+
+  const posicoes = [];
+  capacidades.forEach(({ raio }, i) => {
+    const qtd = porFileira[i];
+    for (let j = 0; j < qtd; j++) {
+      const theta = qtd === 1 ? Math.PI / 2 : Math.PI - (Math.PI * j) / (qtd - 1);
+      posicoes.push({ raio, theta });
+    }
   });
+
+  posicoes.sort((a, b) => b.theta - a.theta || a.raio - b.raio);
+  return posicoes;
+}
+
+function renderHemiciclo(containerId, partidos, { apenasContinua = false } = {}) {
+  const grupos = partidos
+    .map((p, i) => ({
+      sigla: p.sigla,
+      cor: PALETA_PARTIDOS[i % PALETA_PARTIDOS.length],
+      qtd: apenasContinua
+        ? p.membros.filter((m) => m.NumeroLegislatura_2 === 58).length
+        : p.membros.length,
+    }))
+    .filter((g) => g.qtd > 0);
+
+  const total = grupos.reduce((soma, g) => soma + g.qtd, 0);
+  const posicoes = calcularPosicoesAssentos(total, {
+    raioMin: HEMICICLO_RAIO_MIN,
+    linhaEspaco: HEMICICLO_LINHA_ESPACO,
+    raioTeto: HEMICICLO_RAIO_TETO,
+    espacamento: HEMICICLO_ESPACAMENTO,
+  });
+
+  const raioMaxUsado = posicoes.reduce((max, p) => Math.max(max, p.raio), HEMICICLO_RAIO_MIN);
+  const margem = 50;
+  const largura = raioMaxUsado * 2 + margem * 2;
+  const altura = raioMaxUsado + margem + 30;
+  const cx = largura / 2;
+  const cy = altura - 30;
+  const raioAssento = 8;
+
+  const assentosSvg = [];
+  let cursor = 0;
+  for (const g of grupos) {
+    const pct = ((g.qtd / total) * 100).toFixed(1);
+    for (let k = 0; k < g.qtd; k++) {
+      const { raio, theta } = posicoes[cursor++];
+      const x = (cx + raio * Math.cos(theta)).toFixed(1);
+      const y = (cy - raio * Math.sin(theta)).toFixed(1);
+      assentosSvg.push(
+        `<circle cx="${x}" cy="${y}" r="${raioAssento}" fill="${g.cor}"><title>${g.sigla}: ${g.qtd} (${pct}%)</title></circle>`
+      );
+    }
+  }
+
+  const legenda = grupos
+    .map((g) => {
+      const pct = ((g.qtd / total) * 100).toFixed(1);
+      return `<li class="hemiciclo-legenda-item"><span class="hemiciclo-legenda-swatch" style="background:${g.cor}"></span>${g.sigla} — ${g.qtd} (${pct}%)</li>`;
+    })
+    .join("");
+
+  const container = document.getElementById(containerId);
+  container.innerHTML = `
+    <svg viewBox="0 0 ${largura} ${altura}" role="img" aria-label="Diagrama de repartição eleitoral por partido">
+      ${assentosSvg.join("")}
+    </svg>
+    <ul class="hemiciclo-legenda">${legenda}</ul>
+  `;
 }
 
 function renderGraficoLegislatura(partidos) {
@@ -149,52 +220,9 @@ function renderGraficoLegislatura(partidos) {
   });
 }
 
-function renderGraficoProporcionalContinua(partidos) {
-  const dados = partidos
-    .map((p) => ({ sigla: p.sigla, total: p.membros.filter((m) => m.NumeroLegislatura_2 === 58).length }))
-    .filter((p) => p.total > 0)
-    .sort((a, b) => b.total - a.total);
-
-  const ctx = document.getElementById("chart-proporcional-continua");
-  const total = dados.reduce((soma, p) => soma + p.total, 0);
-
-  new Chart(ctx, {
-    type: "doughnut",
-    data: {
-      labels: dados.map((p) => p.sigla),
-      datasets: [
-        {
-          data: dados.map((p) => p.total),
-          backgroundColor: dados.map((_, i) => PALETA_PARTIDOS[i % PALETA_PARTIDOS.length]),
-          borderColor: "#0d1b2e",
-          borderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: "right",
-          labels: { boxWidth: 12, padding: 12 },
-        },
-        tooltip: {
-          callbacks: {
-            label: (item) => {
-              const valor = item.raw;
-              const pct = ((valor / total) * 100).toFixed(1);
-              return `${item.label}: ${valor} (${pct}%)`;
-            },
-          },
-        },
-      },
-    },
-  });
-}
-
 function renderListaPartidos(partidos) {
   const container = document.getElementById("lista-partidos");
+  const gruposPartido = [];
 
   for (const { sigla, membros } of partidos) {
     const grupo = document.createElement("div");
@@ -208,12 +236,63 @@ function renderListaPartidos(partidos) {
         <span class="partido-sigla">${sigla}</span>
         <span class="partido-total">${membros.length} parlamentar${membros.length !== 1 ? "es" : ""}</span>
       </div>
+      <div class="partido-mandatos-resumo">
+        <p class="partido-mandatos-resumo-item partido-mandatos-resumo-item--2027">${formatarResumoMandato(termina2027.length, "termina")}</p>
+        <p class="partido-mandatos-resumo-item partido-mandatos-resumo-item--2031">${formatarResumoMandato(continua2031.length, "continua")}</p>
+      </div>
       ${renderSubgrupo("Mandato termina em 2027", termina2027, false)}
       ${renderSubgrupo("Mandato continua até 2031", continua2031, true)}
     `;
 
     container.appendChild(grupo);
+    gruposPartido.push({ sigla, elemento: grupo });
   }
+
+  return gruposPartido;
+}
+
+function formatarResumoMandato(qtd, tipo) {
+  if (qtd === 0) {
+    return tipo === "termina"
+      ? "Nenhum parlamentar termina o mandato em 2027."
+      : "Nenhum parlamentar continua no mandato até 2031.";
+  }
+  if (qtd === 1) {
+    return tipo === "termina" ? "1 parlamentar termina o mandato em 2027." : "1 continua no mandato até 2031.";
+  }
+  return tipo === "termina"
+    ? `${qtd} parlamentares terminam o mandato em 2027.`
+    : `${qtd} continuam no mandato até 2031.`;
+}
+
+function renderMenuPartidos(partidos, gruposPartido) {
+  const container = document.getElementById("menu-partidos");
+  if (!container) return;
+
+  const pills = partidos.map((p, i) => {
+    const pill = document.createElement("button");
+    pill.type = "button";
+    pill.className = "menu-partido-pill";
+    pill.textContent = p.sigla;
+    pill.addEventListener("click", () => {
+      gruposPartido[i].elemento.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    container.appendChild(pill);
+    return pill;
+  });
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const idx = gruposPartido.findIndex((g) => g.elemento === entry.target);
+        if (idx === -1) continue;
+        pills.forEach((pill, i) => pill.classList.toggle("active", i === idx));
+      }
+    },
+    { rootMargin: "-40% 0px -55% 0px" }
+  );
+  gruposPartido.forEach((g) => observer.observe(g.elemento));
 }
 
 function renderSubgrupo(titulo, membros, continua) {
