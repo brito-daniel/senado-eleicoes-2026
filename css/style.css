@@ -214,6 +214,49 @@ a {
   flex-shrink: 0;
 }
 
+/* ---------- Stat grid (candidaturas) ---------- */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  background: var(--bg-raised);
+  border-left: 3px solid var(--accent);
+  padding: 1.25rem 1rem;
+  text-align: center;
+}
+
+.stat-card--2031 {
+  border-left-color: var(--secondary);
+}
+
+.stat-card--sem-candidatura {
+  border-left-color: var(--line);
+}
+
+.stat-value {
+  font-family: var(--font-poster);
+  font-weight: 400;
+  font-size: 2.2rem;
+  color: var(--text);
+  margin: 0;
+}
+
+.stat-card--sem-candidatura .stat-value {
+  color: var(--text-muted);
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0.5rem 0 0;
+}
+
 /* ---------- Menu de partidos ---------- */
 
 .menu-partidos {
@@ -380,8 +423,11 @@ a {
 
 .card-badge.card-badge--eleicao {
   display: block;
-  width: fit-content;
-  margin-top: 0.4rem;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  margin-top: 0.6rem;
+  border-radius: 6px;
   background: var(--tertiary-soft);
   color: var(--tertiary);
 }

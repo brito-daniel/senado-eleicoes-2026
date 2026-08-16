@@ -6,6 +6,18 @@
 <title>Composição do Senado Federal</title>
 <meta name="description" content="Visualização de dados sobre a composição atual do Senado Federal, com destaque para mandatos que terminam em 2027 e os que seguem até 2031.">
 
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://brito-daniel.github.io/senado-eleicoes-2026/">
+<meta property="og:title" content="Senado Federal — Composição atual e as eleições de 2026">
+<meta property="og:description" content="Quem fica, quem sai e quem disputa outros cargos: a composição do Senado Federal e o comportamento eleitoral dos senadores nas eleições de 2026.">
+<meta property="og:image" content="https://brito-daniel.github.io/senado-eleicoes-2026/img/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Senado Federal — Composição atual e as eleições de 2026">
+<meta name="twitter:description" content="Quem fica, quem sai e quem disputa outros cargos: a composição do Senado Federal e o comportamento eleitoral dos senadores nas eleições de 2026.">
+<meta name="twitter:image" content="https://brito-daniel.github.io/senado-eleicoes-2026/img/og-image.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -84,10 +96,13 @@
     <h2 id="secao-candidaturas-titulo" class="section-title">Candidaturas de 2026</h2>
 
     <div class="chart-block">
-      <h3 class="chart-title">Comportamento eleitoral por fim de mandato</h3>
-      <div class="chart-container chart-container--horizontal">
-        <canvas id="chart-candidaturas"></canvas>
-      </div>
+      <h3 class="chart-title">Mandato termina em 2027</h3>
+      <div id="stats-candidaturas-2027" class="stat-grid"></div>
+    </div>
+
+    <div class="chart-block">
+      <h3 class="chart-title">Mandato continua até 2031</h3>
+      <div id="stats-candidaturas-2031" class="stat-grid"></div>
     </div>
   </section>
 

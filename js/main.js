@@ -36,7 +36,7 @@ async function main() {
   renderHemiciclo("hemiciclo-total", partidos);
   renderGraficoLegislatura(partidos);
   renderHemiciclo("hemiciclo-continua", partidos, { apenasContinua: true });
-  renderGraficoCandidaturas(parlamentares);
+  renderStatsCandidaturas(parlamentares);
   const gruposPartido = renderListaPartidos(partidos);
   renderMenuPartidos(partidos, gruposPartido);
 }
@@ -241,57 +241,40 @@ function renderGraficoLegislatura(partidos) {
   });
 }
 
-function renderGraficoCandidaturas(parlamentares) {
+function renderStatsCandidaturas(parlamentares) {
+  renderStatGrid(
+    "stats-candidaturas-2027",
+    parlamentares.filter((p) => p.NumeroLegislatura_2 === 57),
+    ""
+  );
+  renderStatGrid(
+    "stats-candidaturas-2031",
+    parlamentares.filter((p) => p.NumeroLegislatura_2 === 58),
+    "stat-card--2031"
+  );
+}
+
+function renderStatGrid(containerId, membros, modificadorAno) {
   const contagens = new Map();
-  for (const p of parlamentares) {
-    const categoria = p.Candidatura2026 || "Não informado";
-    if (!contagens.has(categoria)) contagens.set(categoria, { termina2027: 0, continua2031: 0 });
-    const c = contagens.get(categoria);
-    if (p.NumeroLegislatura_2 === 57) c.termina2027++;
-    else if (p.NumeroLegislatura_2 === 58) c.continua2031++;
+  for (const m of membros) {
+    const categoria = m.Candidatura2026 || "Não informado";
+    contagens.set(categoria, (contagens.get(categoria) || 0) + 1);
   }
 
-  const categorias = [...contagens.entries()]
-    .sort((a, b) => b[1].termina2027 + b[1].continua2031 - (a[1].termina2027 + a[1].continua2031));
+  const categorias = [...contagens.entries()].sort((a, b) => b[1] - a[1]);
 
-  const ctx = document.getElementById("chart-candidaturas");
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: categorias.map(([categoria]) => categoria),
-      datasets: [
-        {
-          label: "Termina em 2027",
-          data: categorias.map(([, c]) => c.termina2027),
-          backgroundColor: COR_ACCENT,
-          borderRadius: 3,
-        },
-        {
-          label: "Continua até 2031",
-          data: categorias.map(([, c]) => c.continua2031),
-          backgroundColor: COR_SECONDARY,
-          borderRadius: 3,
-        },
-      ],
-    },
-    options: {
-      indexAxis: "y",
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: "top", labels: { boxWidth: 12 } },
-      },
-      scales: {
-        x: {
-          stacked: true,
-          beginAtZero: true,
-          ticks: { precision: 0 },
-          grid: { color: COR_LINE },
-        },
-        y: { stacked: true, grid: { display: false } },
-      },
-    },
-  });
+  const container = document.getElementById(containerId);
+  container.innerHTML = categorias
+    .map(([categoria, qtd]) => {
+      const semCandidatura = categoria === "Não vai concorrer";
+      return `
+        <div class="stat-card ${modificadorAno} ${semCandidatura ? "stat-card--sem-candidatura" : ""}">
+          <p class="stat-value">${qtd}</p>
+          <p class="stat-label">${categoria}</p>
+        </div>
+      `;
+    })
+    .join("");
 }
 
 function concordarGenero(texto, sexo) {
@@ -307,7 +290,7 @@ function formatarCandidatura(m) {
   const bruto = m.Candidatura2026;
   if (!bruto) return { texto: "Candidatura não informada", concorre: false };
   if (bruto === "Não vai concorrer") {
-    return { texto: "Não vai concorrer em 2026", concorre: false };
+    return { texto: "Não vai concorrer", concorre: false };
   }
   return { texto: `Concorre: ${concordarGenero(bruto, m.SexoParlamentar)}`, concorre: true };
 }
