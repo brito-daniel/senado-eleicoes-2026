@@ -31,14 +31,14 @@ async function main() {
   }
 
   const partidos = agruparPorPartido(parlamentares);
+  const ufs = agruparPorUf(parlamentares);
 
   renderGraficoTotalPorPartido(partidos);
   renderHemiciclo("hemiciclo-total", partidos);
   renderGraficoLegislatura(partidos);
   renderHemiciclo("hemiciclo-continua", partidos, { apenasContinua: true });
   renderStatsCandidaturas(parlamentares);
-  const gruposPartido = renderListaPartidos(partidos);
-  renderMenuPartidos(partidos, gruposPartido);
+  configurarAgrupamentoLista({ partido: partidos, uf: ufs });
 }
 
 function parseCandidaturasCsv(texto) {
@@ -63,6 +63,18 @@ function agruparPorPartido(parlamentares) {
   return [...mapa.entries()]
     .map(([sigla, membros]) => ({ sigla, membros }))
     .sort((a, b) => b.membros.length - a.membros.length);
+}
+
+function agruparPorUf(parlamentares) {
+  const mapa = new Map();
+  for (const p of parlamentares) {
+    const uf = p.UfParlamentar;
+    if (!mapa.has(uf)) mapa.set(uf, []);
+    mapa.get(uf).push(p);
+  }
+  return [...mapa.entries()]
+    .map(([sigla, membros]) => ({ sigla, membros }))
+    .sort((a, b) => a.sigla.localeCompare(b.sigla));
 }
 
 function renderGraficoTotalPorPartido(partidos) {
@@ -297,6 +309,7 @@ function formatarCandidatura(m) {
 
 function renderListaPartidos(partidos) {
   const container = document.getElementById("lista-partidos");
+  container.innerHTML = "";
   const gruposPartido = [];
 
   for (const { sigla, membros } of partidos) {
@@ -342,7 +355,8 @@ function formatarResumoMandato(qtd, tipo) {
 
 function renderMenuPartidos(partidos, gruposPartido) {
   const container = document.getElementById("menu-partidos");
-  if (!container) return;
+  if (!container) return null;
+  container.innerHTML = "";
 
   const pills = partidos.map((p, i) => {
     const pill = document.createElement("button");
@@ -368,6 +382,28 @@ function renderMenuPartidos(partidos, gruposPartido) {
     { rootMargin: "-40% 0px -55% 0px" }
   );
   gruposPartido.forEach((g) => observer.observe(g.elemento));
+  return observer;
+}
+
+function configurarAgrupamentoLista(grupos) {
+  let observerAtual = null;
+
+  function renderizar(tipo) {
+    if (observerAtual) observerAtual.disconnect();
+    const gruposLista = renderListaPartidos(grupos[tipo]);
+    observerAtual = renderMenuPartidos(grupos[tipo], gruposLista);
+  }
+
+  const botoes = document.querySelectorAll(".agrupamento-toggle-btn");
+  botoes.forEach((botao) => {
+    botao.addEventListener("click", () => {
+      if (botao.classList.contains("active")) return;
+      botoes.forEach((b) => b.classList.toggle("active", b === botao));
+      renderizar(botao.dataset.agrupamento);
+    });
+  });
+
+  renderizar("partido");
 }
 
 function renderSubgrupo(titulo, membros, continua) {
