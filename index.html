@@ -20,7 +20,8 @@
 <nav class="site-nav">
   <a href="#top">Início</a>
   <a href="#secao-partidos">Composição atual</a>
-  <a href="#secao-lista">Parlamentares por partido</a>
+  <a href="#secao-candidaturas">Candidaturas de 2026</a>
+  <a href="#secao-lista">Parlamentares em detalhe</a>
 </nav>
 
 <header class="site-header">
@@ -33,8 +34,9 @@
     Em outubro de 2026, dois terços das cadeiras do Senado Federal estarão
     em disputa. Garantir o controle da Casa é prioridade para os dois lados
     do espectro político. Os dados abaixo apresentam a composição atual do
-    Senado — e quais parlamentares seguem no mandato até a próxima
-    legislatura, e quais o encerram já na atual.
+    Senado; quais parlamentares seguem no mandato até a próxima
+    legislatura e quais o encerram já na atual; e quais parlamentares
+    disputam as eleições deste ano e para quais cargos.
   </p>
   <p class="intro-footnote">
     As informações de filiação partidária foram coletadas em 26/07/2026 e
@@ -77,9 +79,21 @@
     </div>
   </section>
 
-  <section id="secao-lista" class="section" aria-labelledby="secao-lista-titulo">
+  <section id="secao-candidaturas" class="section" aria-labelledby="secao-candidaturas-titulo">
     <span class="section-tag">Seção 2</span>
-    <h2 id="secao-lista-titulo" class="section-title">Parlamentares por partido</h2>
+    <h2 id="secao-candidaturas-titulo" class="section-title">Candidaturas de 2026</h2>
+
+    <div class="chart-block">
+      <h3 class="chart-title">Comportamento eleitoral por fim de mandato</h3>
+      <div class="chart-container chart-container--horizontal">
+        <canvas id="chart-candidaturas"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <section id="secao-lista" class="section" aria-labelledby="secao-lista-titulo">
+    <span class="section-tag">Seção 3</span>
+    <h2 id="secao-lista-titulo" class="section-title">Parlamentares em Detalhe</h2>
     <div id="menu-partidos" class="menu-partidos"></div>
     <div id="lista-partidos"></div>
   </section>

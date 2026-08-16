@@ -19,8 +19,16 @@ Chart.defaults.font.family = "'Space Mono', monospace";
 Chart.defaults.font.size = 11;
 
 async function main() {
-  const resposta = await fetch("data/parlamentares_senado.json");
-  const parlamentares = await resposta.json();
+  const [respostaParlamentares, respostaCandidaturas] = await Promise.all([
+    fetch("data/parlamentares_senado.json"),
+    fetch("data/senadores_candidaturas_2026.csv"),
+  ]);
+  const parlamentares = await respostaParlamentares.json();
+  const candidaturasPorNome = parseCandidaturasCsv(await respostaCandidaturas.text());
+
+  for (const p of parlamentares) {
+    p.Candidatura2026 = candidaturasPorNome.get(p.NomeParlamentar) || null;
+  }
 
   const partidos = agruparPorPartido(parlamentares);
 
@@ -28,8 +36,21 @@ async function main() {
   renderHemiciclo("hemiciclo-total", partidos);
   renderGraficoLegislatura(partidos);
   renderHemiciclo("hemiciclo-continua", partidos, { apenasContinua: true });
+  renderGraficoCandidaturas(parlamentares);
   const gruposPartido = renderListaPartidos(partidos);
   renderMenuPartidos(partidos, gruposPartido);
+}
+
+function parseCandidaturasCsv(texto) {
+  const linhas = texto.trim().split("\n");
+  const mapa = new Map();
+  for (let i = 1; i < linhas.length; i++) {
+    const campos = linhas[i].split(";");
+    const nome = (campos[0] || "").trim();
+    const candidatura = (campos[4] || "").trim();
+    if (nome) mapa.set(nome, candidatura);
+  }
+  return mapa;
 }
 
 function agruparPorPartido(parlamentares) {
@@ -220,6 +241,77 @@ function renderGraficoLegislatura(partidos) {
   });
 }
 
+function renderGraficoCandidaturas(parlamentares) {
+  const contagens = new Map();
+  for (const p of parlamentares) {
+    const categoria = p.Candidatura2026 || "Não informado";
+    if (!contagens.has(categoria)) contagens.set(categoria, { termina2027: 0, continua2031: 0 });
+    const c = contagens.get(categoria);
+    if (p.NumeroLegislatura_2 === 57) c.termina2027++;
+    else if (p.NumeroLegislatura_2 === 58) c.continua2031++;
+  }
+
+  const categorias = [...contagens.entries()]
+    .sort((a, b) => b[1].termina2027 + b[1].continua2031 - (a[1].termina2027 + a[1].continua2031));
+
+  const ctx = document.getElementById("chart-candidaturas");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: categorias.map(([categoria]) => categoria),
+      datasets: [
+        {
+          label: "Termina em 2027",
+          data: categorias.map(([, c]) => c.termina2027),
+          backgroundColor: COR_ACCENT,
+          borderRadius: 3,
+        },
+        {
+          label: "Continua até 2031",
+          data: categorias.map(([, c]) => c.continua2031),
+          backgroundColor: COR_SECONDARY,
+          borderRadius: 3,
+        },
+      ],
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "top", labels: { boxWidth: 12 } },
+      },
+      scales: {
+        x: {
+          stacked: true,
+          beginAtZero: true,
+          ticks: { precision: 0 },
+          grid: { color: COR_LINE },
+        },
+        y: { stacked: true, grid: { display: false } },
+      },
+    },
+  });
+}
+
+function concordarGenero(texto, sexo) {
+  if (sexo !== "Feminino") return texto;
+  return texto
+    .replace(/\bCandidato\b/g, "Candidata")
+    .replace(/\b1º(?=\s|$)/g, "1ª")
+    .replace(/\bDeputado\b/g, "Deputada")
+    .replace(/\bGovernador\b/g, "Governadora");
+}
+
+function formatarCandidatura(m) {
+  const bruto = m.Candidatura2026;
+  if (!bruto) return { texto: "Candidatura não informada", concorre: false };
+  if (bruto === "Não vai concorrer") {
+    return { texto: "Não vai concorrer em 2026", concorre: false };
+  }
+  return { texto: `Concorre: ${concordarGenero(bruto, m.SexoParlamentar)}`, concorre: true };
+}
+
 function renderListaPartidos(partidos) {
   const container = document.getElementById("lista-partidos");
   const gruposPartido = [];
@@ -309,6 +401,7 @@ function renderSubgrupo(titulo, membros, continua) {
 
 function renderCard(m, continua) {
   const observacao = renderObservacao(m);
+  const eleicao = formatarCandidatura(m);
   return `
     <div class="card ${continua ? "card--continua" : ""}">
       <img class="card-photo" src="${m.UrlFotoParlamentar}" alt="${m.NomeParlamentar}" loading="lazy">
@@ -316,6 +409,7 @@ function renderCard(m, continua) {
         <p class="card-nome">${m.NomeParlamentar}</p>
         <p class="card-uf">${m.UfParlamentar}</p>
         <span class="card-badge">${continua ? "Até 2031" : "Até 2027"}</span>
+        <span class="card-badge card-badge--eleicao ${eleicao.concorre ? "" : "card-badge--sem-candidatura"}">${eleicao.texto}</span>
         ${observacao ? `<p class="card-obs">${observacao}</p>` : ""}
       </div>
     </div>

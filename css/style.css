@@ -5,6 +5,8 @@
   --accent-soft: rgba(236, 30, 110, 0.15);
   --secondary: #2dd4bf;
   --secondary-soft: rgba(45, 212, 191, 0.15);
+  --tertiary: #f4c94c;
+  --tertiary-soft: rgba(244, 201, 76, 0.15);
   --text: #f5f5f2;
   --text-muted: #9aa5b8;
   --line: rgba(255, 255, 255, 0.12);
@@ -374,6 +376,19 @@ a {
 .card--continua .card-badge {
   background: var(--secondary-soft);
   color: var(--secondary);
+}
+
+.card-badge.card-badge--eleicao {
+  display: block;
+  width: fit-content;
+  margin-top: 0.4rem;
+  background: var(--tertiary-soft);
+  color: var(--tertiary);
+}
+
+.card-badge.card-badge--sem-candidatura {
+  background: var(--line);
+  color: var(--text-muted);
 }
 
 .card-obs {
