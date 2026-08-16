@@ -307,7 +307,7 @@ function formatarCandidatura(m) {
   return { texto: `Concorre: ${concordarGenero(bruto, m.SexoParlamentar)}`, concorre: true };
 }
 
-function renderListaPartidos(partidos) {
+function renderListaPartidos(partidos, modo) {
   const container = document.getElementById("lista-partidos");
   container.innerHTML = "";
   const gruposPartido = [];
@@ -319,17 +319,25 @@ function renderListaPartidos(partidos) {
     const termina2027 = membros.filter((m) => m.NumeroLegislatura_2 === 57);
     const continua2031 = membros.filter((m) => m.NumeroLegislatura_2 === 58);
 
-    grupo.innerHTML = `
-      <div class="partido-header">
-        <span class="partido-sigla">${sigla}</span>
-        <span class="partido-total">${membros.length} parlamentar${membros.length !== 1 ? "es" : ""}</span>
-      </div>
+    const total =
+      modo === "uf" ? "" : `<span class="partido-total">${membros.length} parlamentar${membros.length !== 1 ? "es" : ""}</span>`;
+    const resumo =
+      modo === "uf"
+        ? ""
+        : `
       <div class="partido-mandatos-resumo">
         <p class="partido-mandatos-resumo-item partido-mandatos-resumo-item--2027">${formatarResumoMandato(termina2027.length, "termina")}</p>
         <p class="partido-mandatos-resumo-item partido-mandatos-resumo-item--2031">${formatarResumoMandato(continua2031.length, "continua")}</p>
+      </div>`;
+
+    grupo.innerHTML = `
+      <div class="partido-header">
+        <span class="partido-sigla">${sigla}</span>
+        ${total}
       </div>
-      ${renderSubgrupo("Mandato termina em 2027", termina2027, false)}
-      ${renderSubgrupo("Mandato continua até 2031", continua2031, true)}
+      ${resumo}
+      ${renderSubgrupo("Mandato termina em 2027", termina2027, false, modo)}
+      ${renderSubgrupo("Mandato continua até 2031", continua2031, true, modo)}
     `;
 
     container.appendChild(grupo);
@@ -390,7 +398,7 @@ function configurarAgrupamentoLista(grupos) {
 
   function renderizar(tipo) {
     if (observerAtual) observerAtual.disconnect();
-    const gruposLista = renderListaPartidos(grupos[tipo]);
+    const gruposLista = renderListaPartidos(grupos[tipo], tipo);
     observerAtual = renderMenuPartidos(grupos[tipo], gruposLista);
   }
 
@@ -406,27 +414,28 @@ function configurarAgrupamentoLista(grupos) {
   renderizar("partido");
 }
 
-function renderSubgrupo(titulo, membros, continua) {
+function renderSubgrupo(titulo, membros, continua, modo) {
   if (membros.length === 0) return "";
   return `
     <div class="mandato-subgrupo">
       <p class="mandato-subgrupo-titulo">${titulo}</p>
       <div class="cards-grid">
-        ${membros.map((m) => renderCard(m, continua)).join("")}
+        ${membros.map((m) => renderCard(m, continua, modo)).join("")}
       </div>
     </div>
   `;
 }
 
-function renderCard(m, continua) {
+function renderCard(m, continua, modo) {
   const observacao = renderObservacao(m);
   const eleicao = formatarCandidatura(m);
+  const legenda = modo === "uf" ? m.SiglaPartidoParlamentar : m.UfParlamentar;
   return `
     <div class="card ${continua ? "card--continua" : ""}">
       <img class="card-photo" src="${m.UrlFotoParlamentar}" alt="${m.NomeParlamentar}" loading="lazy">
       <div class="card-body">
         <p class="card-nome">${m.NomeParlamentar}</p>
-        <p class="card-uf">${m.UfParlamentar}</p>
+        <p class="card-uf">${legenda}</p>
         <span class="card-badge">${continua ? "Até 2031" : "Até 2027"}</span>
         <span class="card-badge card-badge--eleicao ${eleicao.concorre ? "" : "card-badge--sem-candidatura"}">${eleicao.texto}</span>
         ${observacao ? `<p class="card-obs">${observacao}</p>` : ""}
